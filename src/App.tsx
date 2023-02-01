@@ -1,23 +1,45 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, {useEffect, useState} from 'react';
 import './App.css';
+import {List} from "./components/List/List";
+import {users, UserType} from "./components/state/state";
 
 function App() {
+  const itemsPerPage = 20;
+  const [usersCount, setUsersCount] = useState(itemsPerPage);
+  const [usersPerPage, setUsersPerPage] = useState<Array<UserType>>([])
+
+  useEffect(() => {
+    fetchUsers()
+  },[usersCount])
+
+  const fetchUsers = () => {
+    let usersFetched = [] as Array<UserType>
+    for (let i = 0; i < usersCount; i++) {
+      usersFetched.push(users[i])
+    }
+    setUsersPerPage(usersFetched)
+
+
+  }
+  useEffect(() => {
+    document.addEventListener('scroll', handleScroll)
+    return () => document.removeEventListener('scroll', handleScroll)
+  },)
+
+  const handleScroll = (e: any) => {
+    const scrollHeight = e.target.documentElement.scrollHeight
+    const currentHeight = e.target.documentElement.scrollTop + window.innerHeight
+    if (currentHeight + 10 >= scrollHeight) {
+      if (usersCount < users.length) {
+        setUsersCount(usersCount + itemsPerPage)
+      }
+    }
+  }
+
   return (
     <div className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+        <List users={usersPerPage}/>
       </header>
     </div>
   );
